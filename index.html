@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D-Education | Universal Learning System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">D-EDUCATION</div>
+            <div id="progress-info" style="font-size: 0.9rem; color: var(--text-secondary);">
+                Progress: <span id="total-progress">0%</span>
+            </div>
+        </header>
+
+        <!-- Dashboard View -->
+        <div id="dashboard" class="animate">
+            <section class="hero">
+                <h1>Твой интеллект в 2026.</h1>
+                <p>Научно обоснованная система ускоренного обучения самым важным навыкам будущего.</p>
+            </section>
+
+            <div class="dashboard-grid" id="module-grid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Module Detail View -->
+        <div id="module-view" class="animate">
+            <button class="btn-back" onclick="app.showDashboard()">← Назад к панели</button>
+            <div id="module-content">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="modules/data.js"></script>
+</body>
+</html>
