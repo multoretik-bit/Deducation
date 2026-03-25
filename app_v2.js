@@ -16,7 +16,7 @@ const app = {
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('module-view').style.display = 'block';
         
-        this.renderModule(moduleData);
+        this.renderModule(moduleId);
         window.scrollTo(0, 0);
     },
 
