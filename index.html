@@ -4,10 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D-Education | Universal Learning System</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0c0e14;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0ab;
+            --accent-primary: #6366f1;
+            --accent-secondary: #06b6d4;
+            --accent-gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            --surface: #181a21;
+            --error: #ef4444;
+            --success: #10b981;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-color); color: var(--text-primary); font-family: var(--font-main); line-height: 1.6; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 2rem 0; border-bottom: 1px solid var(--glass-border); margin-bottom: 3rem; }
+        .logo { font-size: 1.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .card { background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem; position: relative; overflow: hidden; transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
+        .card:hover { transform: translateY(-8px); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+        .card-header { width: 100%; height: 180px; border-radius: 16px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: rgba(255, 255, 255, 0.2); }
+        .ai-bg { background: linear-gradient(135deg, #4f46e5, #06b6d4); }
+        .eq-bg { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+        .fin-bg { background: linear-gradient(135deg, #f59e0b, #eab308); }
+        .crit-bg { background: linear-gradient(135deg, #10b981, #06b6d4); }
+        .card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .card p { color: var(--text-secondary); font-size: 0.9rem; }
+        .card .badge { position: absolute; top: 1rem; right: 1rem; background: var(--accent-gradient); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+        .hero { margin-bottom: 4rem; }
+        .hero h1 { font-size: 4rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -2px; }
+        .hero p { font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        #module-view { display: none; }
+        .btn-back { background: none; border: 1px solid var(--glass-border); color: var(--text-primary); padding: 0.5rem 1rem; border-radius: 12px; cursor: pointer; margin-bottom: 2rem; transition: background 0.2s; }
+        .btn-back:hover { background: var(--glass-border); }
+        .program-day { margin-bottom: 2rem; padding-left: 1.5rem; border-left: 2px solid var(--accent-primary); }
+        .program-day h4 { margin-bottom: 0.5rem; }
+        .retrieval-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 1rem; border-radius: 12px; margin-top: 1rem; }
+        .error-correction-box { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); padding: 1rem; border-radius: 12px; margin-top: 1rem; }
+        .btn-action { background: var(--accent-gradient); border: none; color: white; padding: 0.5rem 1rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 0.5rem 1rem; border-radius: 12px; cursor: pointer; }
+        .active-status { border-color: var(--accent-primary); box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -18,28 +65,180 @@
             </div>
         </header>
 
-        <!-- Dashboard View -->
         <div id="dashboard" class="animate">
             <section class="hero">
                 <h1>Твой интеллект в 2026.</h1>
                 <p>Научно обоснованная система ускоренного обучения самым важным навыкам будущего.</p>
             </section>
-
-            <div class="dashboard-grid" id="module-grid">
-                <!-- Injected via JavaScript -->
-            </div>
+            <div class="dashboard-grid" id="module-grid"></div>
         </div>
 
-        <!-- Module Detail View -->
         <div id="module-view" class="animate">
             <button class="btn-back" onclick="app.showDashboard()">← Назад к панели</button>
-            <div id="module-content">
-                <!-- Content will be injected here -->
-            </div>
+            <div id="module-content"></div>
         </div>
     </div>
 
-    <script src="app_v2.js"></script>
-    <script src="modules/data_v2.js"></script>
+    <script>
+        const modulesData = {
+            'ai-literacy': {
+                title: "ИИ-Грамотность",
+                description: "Освоение инструментов будущего: от базовых промптов до сложных систем автоматизации.",
+                curriculum: [
+                    { topic: "Архитектура LLM", details: "Как работают нейросети на самом деле. Понятие токенов, контекстного окна и весов." },
+                    { topic: "Промпт-Инжиниринг 2.0", details: "Chain-of-Thought, Few-Shot, и использование системных инструкций для точных результатов." },
+                    { topic: "Этика и Безопасность", details: "Галлюцинации, предвзятость и как проверять факты, сгенерированные ИИ." },
+                    { topic: "Агенты и Автоматизация", details: "Создание автономных рабочих процессов с помощью ИИ-агентов." }
+                ],
+                dailyProgram: [
+                    { day: 1, focus: "Погружение в механику", activity: "Изучение принципа предсказания следующего токена. Тестирование лимитов контекста.", retrieval: "Объясни механику 'внимания' (attention) воображаемому 10-летнему ребенку.", errorWork: "Найди 3 случая галлюцинаций в ответах ИИ и проанализируй, какой промпт их вызвал." },
+                    { day: 2, focus: "Техники Структурирования", activity: "Практика метода 'Цепочка рассуждений'. Написание сложных промптов для кодинга.", retrieval: "Воспроизведи по памяти 5 ключевых принципов идеального промпта.", errorWork: "Возьми свой вчерашний плохой промпт и перепиши его, используя новые техники." },
+                    { day: 3, focus: "Интервальное Закрепление", activity: "Смешивание тем: ИИ + решение логических задач. Повторение основ архитектуры.", retrieval: "Краткий тест: чем отличается декодерная архитектура от кодерной?", errorWork: "Разбор ошибок в логических выводах модели из вчерашней сессии." }
+                ]
+            },
+            'eq': {
+                title: "Эмоциональный Интеллект",
+                description: "Навыки взаимодействия в мире, где техническую работу делает ИИ.",
+                curriculum: [
+                    { topic: "Самосознание", details: "Распознавание своих триггеров и управление эмоциональными всплесками." },
+                    { topic: "Активное Слушание", details: "Метод 80/20 в коммуникации: как слышать то, что не сказано." },
+                    { topic: "Переговоры и Конфликты", details: "Техники деэскалации и поиск стратегий Win-Win." },
+                    { topic: "Лидерство через Эмпатию", details: "Построение доверия в распределенных командах." }
+                ],
+                dailyProgram: [
+                    { day: 1, focus: "Картирование эмоций", activity: "Ведение дневника состояний каждые 2 часа. Идентификация базовых эмоций.", retrieval: "Назови 5 физических признаков стресса, которые ты заметил у себя сегодня.", errorWork: "Вспомни сегодняшний конфликт. Какую эмоцию ты подавил и как это повлияло на результат?" },
+                    { day: 2, focus: "Радикальная Эмпатия", activity: "Упражнение 'В чужих ботинках' во время сложных разговоров.", retrieval: "Запиши 3 техники активного слушания, которые ты применил сегодня.", errorWork: "Анализ случая, когда ты перебил собеседника. Почему это произошло?" }
+                ]
+            },
+            'finance': {
+                title: "Новые Финансы",
+                description: "Управление капиталом в эпоху цифровых активов и высокой инфляции.",
+                curriculum: [
+                    { topic: "Активы и Пассивы", details: "Пересмотр классики Кийосаки под реалии 2026 года." },
+                    { topic: "Сложный Процент", details: "Математика долгосрочного богатства и сила регулярности." },
+                    { topic: "Криптоактивы и DeFi", details: "Понимание блокчейна как основы финансовой системы будущего." },
+                    { topic: "Риск-Менеджмент", details: "Диверсификация и защита капитала от черных лебедей." }
+                ],
+                dailyProgram: [{ day: 1, focus: "Аудит реальности", activity: "Полный учет всех расходов и потенциальных пассивных потоков.", retrieval: "Формула сложного процента: напиши её по памяти и реши задачу на рост $1000.", errorWork: "Найди в своем бюджете 'утечки' (подписки, импульсивные покупки) и закрой их." }]
+            },
+            'critical': {
+                title: "Системное Мышление",
+                description: "Как видеть лес за деревьями и не быть обманутым алгоритмами.",
+                curriculum: [
+                    { topic: "Ментальные Модели", details: "Бритва Оккама, принцип Парето, и инверсия как инструменты анализа." },
+                    { topic: "Когнитивные Искажения", details: "Предвзятость подтверждения, эффект ореола и другие баги мозга." },
+                    { topic: "Информационная Гигиена", details: "Как проверять источники и фильтровать шум в 2026 году." },
+                    { topic: "Принятие Решений", details: "Матрица Эйзенхауэра и сценарное планирование." }
+                ],
+                dailyProgram: [{ day: 1, focus: "Детекция багов мозга", activity: "Анализ новостной ленты на наличие 5 различных искажений.", retrieval: "Перечисли 10 самых частых когнитивных искажений без подсказки.", errorWork: "Вспомни решение, о котором жалеешь. Какое искажение (bias) привело к ошибке?" }]
+            },
+            'marketing': {
+                title: "Современный Маркетинг",
+                description: "От психологии потребителя до автоматизации воронок и ИИ-копирайтинга.",
+                curriculum: [
+                    { topic: "Психология Влияния", details: "Принципы Чалдини в цифровой среде." },
+                    { topic: "Growth Hacking", details: "Поиск дешевых каналов роста и виральные петли." },
+                    { topic: "Контент-Матрица", details: "Создание системы контента, работающей без твоего участия." },
+                    { topic: "Performance и Аналитика", details: "Юнит-экономика и принятие решений на основе цифр." }
+                ],
+                dailyProgram: [{ day: 1, focus: "Аудит внимания", activity: "Анализ 5 успешных рекламных кампаний: почему они цепляют?", retrieval: "Назови 6 принципов убеждения Роберта Чалдини.", errorWork: "Найди в своей ленте плохую рекламу. Что именно в ней не работает?" }]
+            },
+            'habits': {
+                title: "Архитектура Привычек",
+                description: "Как перепрошить свой мозг без насилия над собой.",
+                curriculum: [
+                    { topic: "Neurobiology of Habits", details: "Петля привычки: Триггер - Действие - Награда." },
+                    { topic: "Атомные привычки", details: "Закон 1% и метод наслоения привычек." },
+                    { topic: "Борьба с прокрастинацией", details: "Дофаминовый детокс и управление энергией." },
+                    { topic: "Среда как драйвер", details: "Проектирование пространства для успеха." }
+                ],
+                dailyProgram: [{ day: 1, focus: "Детекция петель", activity: "Запись всех автоматических действий за день.", retrieval: "Объясни, почему сила воли - это исчерпаемый ресурс.", errorWork: "Выбери одну вредную привычку. Какой именно триггер её запускает?" }]
+            },
+            'self-dev': {
+                title: "Саморазвитие 3.0",
+                description: "Мета-навыки для жизни в условиях сверхнеопределенности.",
+                curriculum: [
+                    { topic: "Антихрупкость", details: "Как извлекать выгоду из хаоса по Талебу." },
+                    { topic: "Философия Стойкости", details: "Применение стоицизма в современном мире." },
+                    { topic: "Сверхспособность Сосредоточения", details: "Метод Deep Work и борьба с фрагментацией внимания." },
+                    { topic: "Биохакинг основ", details: "Сон, питание и базовые показатели здоровья." }
+                ],
+                dailyProgram: [{ day: 1, focus: "Глубокая работа", activity: "Сессия Deep Work на 90 минут без уведомлений.", retrieval: "В чем разница между хрупкостью, неуязвимостью и антихрупкостью?", errorWork: "Сколько раз ты отвлекся на телефон сегодня? Проанализируй причину." }]
+            },
+            'organization': {
+                title: "Самоорганизация",
+                description: "Системы управления временем и проектами без выгорания.",
+                curriculum: [
+                    { topic: "GTD (Getting Things Done)", details: "Метод Дэвида Аллена для очистки сознания." },
+                    { topic: "Второй Мозг", details: "Построение системы заметок (P.A.R.A. method)." },
+                    { topic: "Приоритизация", details: "Матрица Дирка Хауберта и закон Парето." },
+                    { topic: "Agile Life", details: "Спринты и ретроспективы в личной жизни." }
+                ],
+                dailyProgram: [{ day: 1, focus: "Разгрузка сознания", activity: "Brain Dump всех незавершенных дел в одну систему.", retrieval: "Назови 5 этапов управления рабочим процессом в GTD.", errorWork: "Анализ 'хвостов': почему эта задача висит больше недели?" }]
+            }
+        };
+
+        const app = {
+            currentModule: null,
+            progress: JSON.parse(localStorage.getItem('d_edu_progress')) || {},
+            activeCourses: JSON.parse(localStorage.getItem('d_edu_active')) || [],
+
+            init() { this.renderDashboard(); this.updateOverallProgress(); },
+            openModule(id) { 
+                this.currentModule = id; const data = modulesData[id]; if(!data) return;
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('module-view').style.display = 'block';
+                this.renderModule(data); window.scrollTo(0,0);
+            },
+            showDashboard() { 
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('module-view').style.display = 'none';
+                this.renderDashboard(); this.updateOverallProgress();
+            },
+            toggleCourse(id) {
+                const idx = this.activeCourses.indexOf(id);
+                if(idx > -1) this.activeCourses.splice(idx, 1);
+                else { if(this.activeCourses.length >= 3) alert("Оптимально изучать не более 3 курсов одновременно."); this.activeCourses.push(id); }
+                localStorage.setItem('d_edu_active', JSON.stringify(this.activeCourses));
+                this.renderDashboard();
+            },
+            renderDashboard() {
+                const grid = document.getElementById('module-grid'); grid.innerHTML = '';
+                const sorted = Object.keys(modulesData).sort((a,b) => this.activeCourses.includes(b) - this.activeCourses.includes(a));
+                sorted.forEach(key => {
+                    const data = modulesData[key]; const active = this.activeCourses.includes(key);
+                    const card = document.createElement('div'); card.className = `card ${active ? 'active-status' : ''}`;
+                    card.innerHTML = `
+                        ${active ? '<div class="badge">ACTIVE</div>' : ''}
+                        <div class="card-header ${this.getBg(key)}">${this.getEmoji(key)}</div>
+                        <h3>${data.title}</h3><p>${data.description}</p>
+                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                            <button class="btn-action" onclick="event.stopPropagation(); app.openModule('${key}')">Открыть</button>
+                            <button class="btn-secondary" onclick="event.stopPropagation(); app.toggleCourse('${key}')">${active ? 'Убрать' : 'В активные'}</button>
+                        </div>`;
+                    card.onclick = () => this.openModule(key); grid.appendChild(card);
+                });
+            },
+            getBg(k) { return { 'ai-literacy':'ai-bg','eq':'eq-bg','finance':'fin-bg','critical':'crit-bg','marketing':'ai-bg','habits':'eq-bg','self-dev':'crit-bg','organization':'fin-bg' }[k] || 'ai-bg'; },
+            getEmoji(k) { return { 'ai-literacy':'🧠','eq':'❤️','finance':'💰','critical':'⚡','marketing':'📈','habits':'🔄','self-dev':'🌱','organization':'⏱️' }[k] || '📚'; },
+            renderModule(data) {
+                document.getElementById('module-content').innerHTML = `
+                    <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">${data.title}</h1>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">${data.description}</p>
+                    <section><h2>Курс Обучения</h2><div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        ${data.curriculum.map(i => `<div class="card" style="cursor:default;"><h4>${i.topic}</h4><p style="font-size:0.8rem;">${i.details}</p></div>`).join('')}
+                    </div></section>
+                    <section style="margin-top:2rem;"><h2>Программа по Дням</h2>
+                        ${data.dailyProgram.map(d => `<div class="program-day"><h3>День ${d.day}: ${d.focus}</h3><p>${d.activity}</p><div class="retrieval-box"><strong>Recall:</strong> ${d.retrieval}</div><div class="error-correction-box"><strong>Errors:</strong> ${d.errorWork}</div></div>`).join('')}
+                    </section>`;
+            },
+            updateOverallProgress() {
+                const total = Object.keys(modulesData).length;
+                const percent = Math.round((Object.keys(this.progress).length / total) * 100);
+                document.getElementById('total-progress').innerText = `${percent}%`;
+            }
+        };
+        window.onload = () => app.init();
+    </script>
 </body>
 </html>
