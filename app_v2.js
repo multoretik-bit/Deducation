@@ -175,33 +175,41 @@ const app = {
         return mapping[key] || '📚';
     },
 
-    renderModule(data) {
+    renderModule(moduleId) {
+        this.currentModule = moduleId;
+        const data = modulesData[moduleId];
         const content = document.getElementById('module-content');
+        
+        // Header
         let html = `
+            <button class="btn-back" onclick="app.showDashboard()">← К панеле</button>
             <div class="module-header">
                 <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">${data.title}</h1>
                 <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem;">${data.description}</p>
             </div>
         `;
 
+        // Check for 3-level hierarchy (Blocks -> Topics -> Lessons)
         if (data.blocks) {
-            html += `<div class="blocks-container" style="display: flex; flex-direction: column; gap: 2rem;">`;
+            html += `<div class="blocks-container">`;
             data.blocks.forEach((block, bIdx) => {
                 html += `
-                    <div class="block-card" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem;">
-                        <h2 style="margin-bottom: 1.5rem; color: var(--accent-primary);">${block.title}</h2>
-                        <div class="lessons-grid" style="display: grid; gap: 1rem;">
-                            ${block.lessons.map((lesson, lIdx) => `
-                                <div class="lesson-item" style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 1rem; border: 1px solid transparent; transition: border-color 0.3s;">
-                                    <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                        <span style="opacity: 0.5;">${bIdx + 1}.${lIdx + 1}</span> ${lesson.title}
-                                    </h3>
-                                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">${lesson.content}</p>
-                                    
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                                        ${lesson.books ? `<div><strong style="font-size: 0.8rem; color: var(--accent-secondary);">📚 Литература:</strong><ul style="font-size: 0.75rem; color: var(--text-secondary); padding-left: 1.2rem; margin-top: 0.3rem;">${lesson.books.map(b => `<li>${b}</li>`).join('')}</ul></div>` : ''}
-                                        ${lesson.tips ? `<div><strong style="font-size: 0.8rem; color: var(--success);">💡 Совет:</strong><p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">${lesson.tips}</p></div>` : ''}
-                                        ${lesson.task ? `<div><strong style="font-size: 0.8rem; color: var(--error);">🎯 Задание:</strong><p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">${lesson.task}</p></div>` : ''}
+                    <div class="block-card">
+                        <h2 style="margin-bottom: 1.5rem; color: var(--accent-primary); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">${block.title}</h2>
+                        <div class="topics-container">
+                            ${block.topics.map((topic, tIdx) => `
+                                <div class="topic-accordion">
+                                    <div class="topic-header" onclick="app.toggleAccordion(this)">
+                                        <h3>${topic.title}</h3>
+                                        <span>▼</span>
+                                    </div>
+                                    <div class="lessons-list" style="display: none;">
+                                        ${topic.lessons.map((lesson, lIdx) => `
+                                            <div class="lesson-link" onclick="app.openLesson('${moduleId}', ${bIdx}, ${tIdx}, ${lIdx})">
+                                                <span>${lesson.title}</span>
+                                                <span class="day-num">День ${lIdx + 1}</span>
+                                            </div>
+                                        `).join('')}
                                     </div>
                                 </div>
                             `).join('')}
@@ -211,6 +219,7 @@ const app = {
             });
             html += `</div>`;
         } else {
+            // Fallback for simple courses
             html += `
                 <section class="course-curriculum">
                     <h2 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Курс Обучения</h2>
@@ -223,23 +232,69 @@ const app = {
                         `).join('')}
                     </div>
                 </section>
-
-                <section class="daily-program" style="margin-top: 4rem;">
-                    <h2 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Программа по Дням</h2>
-                    <div class="program-list">
-                        ${data.dailyProgram.map(day => `
-                            <div class="program-day">
-                                <h3>День ${day.day}: ${day.focus}</h3>
-                                <p>${day.activity}</p>
-                                <div class="retrieval-box"><strong>Recall:</strong> ${day.retrieval}</div>
-                                <div class="error-correction-box"><strong>Errors:</strong> ${day.errorWork}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </section>
             `;
         }
         content.innerHTML = html;
+        window.scrollTo(0,0);
+    },
+
+    toggleAccordion(el) {
+        const list = el.nextElementSibling;
+        const arrow = el.querySelector('span');
+        if (list.style.display === 'none') {
+            list.style.display = 'flex';
+            arrow.innerText = '▲';
+            el.parentElement.style.borderColor = 'var(--accent-primary)';
+        } else {
+            list.style.display = 'none';
+            arrow.innerText = '▼';
+            el.parentElement.style.borderColor = 'var(--glass-border)';
+        }
+    },
+
+    openLesson(moduleId, bIdx, tIdx, lIdx) {
+        const lesson = modulesData[moduleId].blocks[bIdx].topics[tIdx].lessons[lIdx];
+        const content = document.getElementById('module-content');
+        
+        let html = `
+            <button class="btn-back" onclick="app.renderModule('${moduleId}')">← К списку тем</button>
+            <div class="reading-container animate">
+                <h1 style="font-size: 3rem; margin-bottom: 2rem; line-height: 1.1;">${lesson.title}</h1>
+                <div class="reading-content">
+                    ${lesson.content}
+                </div>
+                
+                <div class="lesson-meta-grid">
+                    <div class="meta-box">
+                        <h4 style="color: var(--accent-secondary);">📚 Материалы</h4>
+                        <ul class="books-list">
+                            ${(lesson.books || []).map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="meta-box">
+                        <h4 style="color: var(--success);">💡 Советы</h4>
+                        <p class="tip-text">${lesson.tips || 'Нет советов для этого урока.'}</p>
+                    </div>
+                    <div class="meta-box">
+                        <h4 style="color: var(--error);">🎯 Задание</h4>
+                        <p class="task-text">${lesson.task || 'Задание скоро появится.'}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 4rem; display: flex; justify-content: center;">
+                    <button class="btn-action" style="padding: 1rem 3rem; font-size: 1.2rem;" onclick="app.completeLesson('${moduleId}', '${lesson.title}')">Я изучил материал</button>
+                </div>
+            </div>
+        `;
+        content.innerHTML = html;
+        window.scrollTo(0,0);
+    },
+
+    completeLesson(moduleId, lessonTitle) {
+        this.progress[lessonTitle] = true;
+        localStorage.setItem('d_edu_progress', JSON.stringify(this.progress));
+        alert("Урок завершен! Твой прогресс обновлен.");
+        this.renderModule(moduleId);
     },
 
     updateOverallProgress() {
