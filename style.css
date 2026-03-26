@@ -277,3 +277,112 @@ header {
 nav a {
     transition: color 0.3s;
 }
+
+/* Lesson & Test Styles */
+.lesson-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.lesson-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: transform 0.3s ease;
+}
+
+.lesson-section:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.lesson-section h3 {
+    color: var(--accent-primary);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-body {
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.term-badge {
+    display: inline-block;
+    padding: 0.2rem 0.8rem;
+    background: var(--accent-secondary);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin: 0.2rem;
+}
+
+.test-trigger-box {
+    margin-top: 5rem;
+    padding: 3rem;
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(0, 206, 201, 0.1));
+    border-radius: 24px;
+    text-align: center;
+    border: 1px dashed var(--accent-primary);
+}
+
+.test-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 0;
+}
+
+.test-question-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.test-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.test-input:focus {
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.test-result-card {
+    text-align: center;
+    padding: 5rem 2rem;
+}
+
+.lesson-status-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    font-weight: 800;
+    margin-left: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-learned { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-repeat { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.lesson-link .info-wrapper {
+    display: flex;
+    align-items: center;
+}

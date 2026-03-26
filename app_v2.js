@@ -204,12 +204,22 @@ const app = {
                                         <span>▼</span>
                                     </div>
                                     <div class="lessons-list" style="display: none;">
-                                        ${topic.lessons.map((lesson, lIdx) => `
-                                            <div class="lesson-link" onclick="app.openLesson('${moduleId}', ${bIdx}, ${tIdx}, ${lIdx})">
-                                                <span>${lesson.title}</span>
-                                                <span class="day-num">День ${lIdx + 1}</span>
-                                            </div>
-                                        `).join('')}
+                                        ${topic.lessons.map((lesson, lIdx) => {
+                                            const status = (this.progress[moduleId] || {})[lesson.id || lesson.title];
+                                            let statusHtml = '';
+                                            if (status === 'learned') statusHtml = '<span class="lesson-status-badge status-learned">Усвоено</span>';
+                                            else if (status === 'repeat') statusHtml = '<span class="lesson-status-badge status-repeat">Повторить</span>';
+                                            
+                                            return `
+                                                <div class="lesson-link" onclick="app.openLesson('${moduleId}', ${bIdx}, ${tIdx}, ${lIdx})">
+                                                    <div class="info-wrapper">
+                                                        <span>${lesson.title}</span>
+                                                        ${statusHtml}
+                                                    </div>
+                                                    <span class="day-num">Урок ${lIdx + 1}</span>
+                                                </div>
+                                            `;
+                                        }).join('')}
                                     </div>
                                 </div>
                             `).join('')}
@@ -256,33 +266,38 @@ const app = {
         const lesson = modulesData[moduleId].blocks[bIdx].topics[tIdx].lessons[lIdx];
         const content = document.getElementById('module-content');
         
+        // Define standard sections if they don't exist in lesson specifically
+        const sections = [
+            { title: "Простое объяснение", content: lesson.explanation || lesson.content },
+            { title: "Зачем это нужно", content: lesson.necessity },
+            { title: "Главные термины", content: (lesson.terms || []).map(t => `<span class="term-badge">${t}</span>`).join(' ') },
+            { title: "Типичные ошибки", content: lesson.mistakes },
+            { title: "Пример из жизни", content: lesson.examples },
+            { title: "Мини-кейс", content: lesson.case },
+            { title: "Практика", content: lesson.practice },
+            { title: "Чек-лист", content: (lesson.checklist || []).map(c => `<li><input type="checkbox"> ${c}</li>`).join('') },
+            { title: "Домашнее задание", content: lesson.homework },
+            { title: "Краткое резюме", content: lesson.summary }
+        ];
+
         let html = `
             <button class="btn-back" onclick="app.renderModule('${moduleId}')">← К списку тем</button>
             <div class="reading-container animate">
-                <h1 style="font-size: 3rem; margin-bottom: 2rem; line-height: 1.1;">${lesson.title}</h1>
-                <div class="reading-content">
-                    ${lesson.content}
-                </div>
+                <h1 style="font-size: 2.8rem; margin-bottom: 2rem; line-height: 1.1; color: var(--accent-primary);">${lesson.title}</h1>
                 
-                <div class="lesson-meta-grid">
-                    <div class="meta-box">
-                        <h4 style="color: var(--accent-secondary);">📚 Материалы</h4>
-                        <ul class="books-list">
-                            ${(lesson.books || []).map(b => `<li>${b}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div class="meta-box">
-                        <h4 style="color: var(--success);">💡 Советы</h4>
-                        <p class="tip-text">${lesson.tips || 'Нет советов для этого урока.'}</p>
-                    </div>
-                    <div class="meta-box">
-                        <h4 style="color: var(--error);">🎯 Задание</h4>
-                        <p class="task-text">${lesson.task || 'Задание скоро появится.'}</p>
-                    </div>
+                <div class="lesson-sections">
+                    ${sections.filter(s => s.content).map(s => `
+                        <div class="lesson-section">
+                            <h3>${s.title}</h3>
+                            <div class="section-body">${s.content}</div>
+                        </div>
+                    `).join('')}
                 </div>
-                
-                <div style="margin-top: 4rem; display: flex; justify-content: center;">
-                    <button class="btn-action" style="padding: 1rem 3rem; font-size: 1.2rem;" onclick="app.completeLesson('${moduleId}', '${lesson.title}')">Я изучил материал</button>
+
+                <div class="test-trigger-box">
+                    <h3>🧠 Проверка усвоенного (Active Recall)</h3>
+                    <p>Пройди мини-тест, чтобы закрепить материал. Если результат будет хороший, урок уйдет в "Усвоено", если нет — в "Повторять".</p>
+                    <button class="btn-action" style="background: var(--accent-secondary);" onclick="app.startTest('${moduleId}', ${bIdx}, ${tIdx}, ${lIdx})">Начать тест</button>
                 </div>
             </div>
         `;
@@ -290,11 +305,64 @@ const app = {
         window.scrollTo(0,0);
     },
 
-    completeLesson(moduleId, lessonTitle) {
-        this.progress[lessonTitle] = true;
+    startTest(moduleId, bIdx, tIdx, lIdx) {
+        const lesson = modulesData[moduleId].blocks[bIdx].topics[tIdx].lessons[lIdx];
+        const questions = lesson.testQuestions || [];
+        if (questions.length === 0) {
+            alert("Тест для этого урока скоро появится!");
+            return;
+        }
+
+        const content = document.getElementById('module-content');
+        let html = `
+            <div class="test-container animate">
+                <h2 style="margin-bottom: 2rem;">Проверка знаний: ${lesson.title}</h2>
+                <div id="test-questions">
+                    ${questions.map((q, i) => `
+                        <div class="test-question-card">
+                            <p style="font-weight: 700; margin-bottom: 1rem;">${i+1}. ${q.q}</p>
+                            <input type="text" class="test-input" placeholder="Твой ответ..." data-answer="${q.a}">
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn-action" style="margin-top: 2rem;" onclick="app.finishTest('${moduleId}', ${bIdx}, ${tIdx}, ${lIdx})">Завершить и проверить</button>
+            </div>
+        `;
+        content.innerHTML = html;
+    },
+
+    finishTest(moduleId, bIdx, tIdx, lIdx) {
+        const inputs = document.querySelectorAll('.test-input');
+        let correct = 0;
+        inputs.forEach(input => {
+            const userVal = input.value.trim().toLowerCase();
+            const realVal = input.getAttribute('data-answer').toLowerCase();
+            if (userVal && (realVal.includes(userVal) || userVal.includes(realVal))) {
+                correct++;
+                input.style.borderColor = 'var(--success)';
+            } else {
+                input.style.borderColor = 'var(--error)';
+            }
+        });
+
+        const score = (correct / inputs.length) * 100;
+        const lesson = modulesData[moduleId].blocks[bIdx].topics[tIdx].lessons[lIdx];
+        
+        // Save status
+        const status = score >= 80 ? 'learned' : 'repeat';
+        if (!this.progress[moduleId]) this.progress[moduleId] = {};
+        this.progress[moduleId][lesson.id || lesson.title] = status;
         localStorage.setItem('d_edu_progress', JSON.stringify(this.progress));
-        alert("Урок завершен! Твой прогресс обновлен.");
-        this.renderModule(moduleId);
+
+        const content = document.getElementById('module-content');
+        content.innerHTML = `
+            <div class="test-result-card animate">
+                <h1 style="font-size: 4rem;">${score}%</h1>
+                <h2>Результат: ${status === 'learned' ? 'Усвоено! 🎉' : 'Нужно повторить 🔄'}</h2>
+                <p style="margin: 2rem 0;">Урок добавлен в папку <strong>"${status === 'learned' ? 'Усвоено' : 'Повторять'}"</strong>.</p>
+                <button class="btn-action" onclick="app.renderModule('${moduleId}')">К списку уроков</button>
+            </div>
+        `;
     },
 
     updateOverallProgress() {
