@@ -1,7 +1,7 @@
 const app = {
     currentModule: null,
     progress: JSON.parse(localStorage.getItem('d_edu_progress')) || {},
-    activeCourses: JSON.parse(localStorage.getItem('d_edu_active')) || [],
+    activeCourses: JSON.parse(localStorage.getItem('d_edu_active_v5')) || [],
 
     init() {
         this.renderDashboard();
@@ -122,7 +122,7 @@ const app = {
             }
             this.activeCourses.push(moduleId);
         }
-        localStorage.setItem('d_edu_active', JSON.stringify(this.activeCourses));
+        localStorage.setItem('d_edu_active_v5', JSON.stringify(this.activeCourses));
         this.renderDashboard();
     },
 
@@ -161,7 +161,7 @@ const app = {
 
     getBgClass(key) {
         const mapping = {
-            'ai-literacy': 'ai-bg', 'eq': 'eq-bg', 'finance': 'fin-bg', 'critical': 'crit-bg',
+            'finance-2026': 'fin-bg', 'eq': 'eq-bg', 'finance': 'fin-bg', 'critical': 'crit-bg',
             'marketing': 'ai-bg', 'habits': 'eq-bg', 'self-dev': 'crit-bg', 'organization': 'fin-bg'
         };
         return mapping[key] || 'ai-bg';
@@ -169,7 +169,7 @@ const app = {
 
     getEmoji(key) {
         const mapping = {
-            'ai-literacy': '🧠', 'eq': '❤️', 'finance': '💰', 'critical': '⚡',
+            'finance-2026': '💰', 'eq': '❤️', 'finance': '💰', 'critical': '⚡',
             'marketing': '📈', 'habits': '🔄', 'self-dev': '🌱', 'organization': '⏱️'
         };
         return mapping[key] || '📚';
