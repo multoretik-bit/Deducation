@@ -387,45 +387,44 @@ const specificContent = {
 };
 
 function generateLessonContent(title) {
-    if (specificContent[title]) {
-        const sc = specificContent[title];
-        return {
-            "title": title,
-            "explanation": sc.explanation,
-            "necessity": sc.necessity,
-            "terms": sc.terms,
-            "errors": sc.errors,
-            "practice": sc.practice,
-            "recall": sc.recall
-        };
-    }
-    
-    // Generic generator for other lessons
-    return {
-        "title": title,
-        "explanation": `Это подробное объяснение для урока '${title}'. Здесь рассматриваются ключевые концепции и принципы.`,
-        "necessity": "Понимание этой темы критически важно для построения устойчивой финансовой системы и принятия обоснованных решений.",
-        "terms": [
+    const sc = specificContent[title] || {
+        explanation: `Это подробное объяснение для урока '${title}'. Здесь рассматриваются ключевые концепции и принципы.`,
+        necessity: "Понимание этой темы критически важно для построения устойчивой финансовой системы и принятия обоснованных решений.",
+        terms: [
             {"term": "Финансовая грамотность", "definition": "Способность понимать и эффективно использовать различные финансовые навыки."},
             {"term": "Денежный поток", "definition": "Движение денег внутрь и наружу вашего личного бюджета."}
         ],
-        "errors": [
+        errors: [
             "Игнорирование мелких расходов, которые складываются в крупные суммы.",
             "Отсутствие четкого плана и автоматизации накоплений."
         ],
-        "practice": [
+        practice: [
             "Проанализируйте свои траты за последнюю неделю в контексте этой темы.",
             "Составьте список из 3 конкретных действий, которые вы предпримете завтра."
         ],
-        "recall": [
+        recall: [
             "В чем основная суть этой концепции своими словами?",
             "Как применение этого знания изменит ваш финансовый результат через год?"
         ]
     };
+
+    return {
+        "explanation": sc.explanation,
+        "necessity": sc.necessity,
+        "terms": sc.terms.map(t => `${t.term}: ${t.definition}`),
+        "mistakes": sc.errors.join('. '),
+        "practice": sc.practice.join('. '),
+        "testQuestions": sc.recall.map(q => ({ q: q, a: "Ответ на основе материала урока" })),
+        "examples": "Пример реализации в реальной жизни будет добавлен в следующем обновлении.",
+        "case": "Практический кейс для анализа ситуации.",
+        "checklist": ["Понял суть", "Выполнил практику"],
+        "homework": "Закрепите материал, проанализировав свои финансы.",
+        "summary": "Короткий итог: эта тема — фундамент вашего успеха."
+    };
 }
 
 const modulesData = {
-    "finance-2026": {
+    "finance": {
         "title": "Финансы 2026 (510 уроков)",
         "description": "Полная научная система управления капиталом: от психологии до стратегии жизни на 30 лет.",
         "blocks": []
@@ -453,10 +452,10 @@ for (const [blockTitle, lessons] of Object.entries(curriculum)) {
         blockObj.topics[0].lessons.push({
             "id": uniqueId,
             "title": lessonTitle,
-            "content": generateLessonContent(lessonTitle)
+            ...generateLessonContent(lessonTitle)
         });
     }
-    modulesData["finance-2026"].blocks.push(blockObj);
+    modulesData["finance"].blocks.push(blockObj);
 }
 
 const data = "var modulesData = " + JSON.stringify(modulesData, null, 4) + ";";
