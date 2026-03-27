@@ -266,18 +266,30 @@ const app = {
         const lesson = modulesData[moduleId].blocks[bIdx].topics[tIdx].lessons[lIdx];
         const content = document.getElementById('module-content');
         
-        // Define standard sections if they don't exist in lesson specifically
+        // Helper to get field from lesson or lesson.content
+        const getField = (f) => {
+            if (lesson[f]) return lesson[f];
+            if (lesson.content && typeof lesson.content === 'object') return lesson.content[f] || '';
+            return '';
+        };
+
+        // Special handling for content/explanation
+        const explanation = lesson.explanation || (lesson.content && typeof lesson.content === 'object' ? lesson.content.explanation : lesson.content);
+
         const sections = [
-            { title: "Простое объяснение", content: lesson.explanation || lesson.content },
-            { title: "Зачем это нужно", content: lesson.necessity },
-            { title: "Главные термины", content: (lesson.terms || []).map(t => `<span class="term-badge">${t}</span>`).join(' ') },
-            { title: "Типичные ошибки", content: lesson.mistakes },
-            { title: "Пример из жизни", content: lesson.examples },
-            { title: "Мини-кейс", content: lesson.case },
-            { title: "Практика", content: lesson.practice },
-            { title: "Чек-лист", content: (lesson.checklist || []).map(c => `<li><input type="checkbox"> ${c}</li>`).join('') },
-            { title: "Домашнее задание", content: lesson.homework },
-            { title: "Краткое резюме", content: lesson.summary }
+            { title: "Простое объяснение", content: explanation },
+            { title: "Зачем это нужно", content: getField('necessity') },
+            { title: "Главные термины", content: (getField('terms') || []).map(t => {
+                if (typeof t === 'object') return `<span class="term-badge">${t.term || ''}: ${t.definition || ''}</span>`;
+                return `<span class="term-badge">${t}</span>`;
+            }).join(' ') },
+            { title: "Типичные ошибки", content: getField('mistakes') || getField('errors') },
+            { title: "Пример из жизни", content: getField('examples') },
+            { title: "Мини-кейс", content: getField('case') },
+            { title: "Практика", content: getField('practice') },
+            { title: "Чек-лист", content: (getField('checklist') || []).map(c => `<li><input type="checkbox"> ${c}</li>`).join('') },
+            { title: "Домашнее задание", content: getField('homework') },
+            { title: "Краткое резюме", content: getField('summary') }
         ];
 
         let html = `
