@@ -1,0 +1,13 @@
+@echo off
+echo Staging changes...
+git add .
+echo Committing...
+git commit -m "Force sync: Final 12 lessons fix"
+echo Pulling latest (rebase)...
+git pull origin main --rebase
+echo Pushing to GitHub...
+git push origin main
+echo.
+echo IF YOU SEE ANY ERRORS ABOVE, PLEASE LET ME KNOW.
+echo IF SUCCESSFUL, REFRESH THE SITE IN BROWSER.
+pause
